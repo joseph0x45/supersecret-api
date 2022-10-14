@@ -13,3 +13,8 @@ async function verifyPassword(plainText: string, hash: string): Promise<string>{
     
     return ""
 }
+
+export {
+    hashPassword,
+     verifyPassword
+}

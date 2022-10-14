@@ -1,5 +1,5 @@
 import  express, { Response, Request } from "express"
-import * as cors from "cors"
+import cors from "cors"
 import * as dotenv from "dotenv"
 dotenv.config()
 import bodyParser from "body-parser"
