@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 
 const projectSchema = new mongoose.Schema({
     owner: String,
-    collaborators: [String],
-    secrets: {},
-    name: Object
+    collaborators: [],
+    secrets: [],
+    name: String
 
 })
 

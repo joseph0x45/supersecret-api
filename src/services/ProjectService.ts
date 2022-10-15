@@ -9,9 +9,7 @@ async function createProject(req: Request, res: Response) {
 	    const newProject = new ProjectModel({
 	        owner:decrypted.email,
 	        collaborators: [],
-	        secrets: {
-                "":""
-            },
+	        secrets: [],
 	        name
 	    })
 	    newProject.save((err, result)=>{
