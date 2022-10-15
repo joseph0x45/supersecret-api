@@ -8,9 +8,9 @@ import { projectExists } from "../utils"
 async function createProject(req: Request, res: Response) {
     try {
         const { name, decrypted } = req.body
-        if(await projectExists(name)){
+        if (await projectExists(name)) {
             return res.status(409).send({
-                "message":"A project with the same name already exists"
+                "message": "A project with the same name already exists"
             })
         }
         const userAccount = await UserModel.findOne({
@@ -19,7 +19,7 @@ async function createProject(req: Request, res: Response) {
         const userSecret = userAccount!.secret
         console.log(userSecret);
         const secrets = decryptAndSign(userSecret as string, {
-            secrets:[]
+            secrets: []
         })
         const newProject = new ProjectModel({
             owner: decrypted.email,
@@ -62,7 +62,7 @@ async function createSecret(req: Request, res: Response) {
         })
         const userSecret = userAccount!.secret
         console.log(userSecret);
-        if (secretsToken==""){
+        if (secretsToken == "") {
             console.log("User's first secret");
             const newSecret = {
                 key,
@@ -72,14 +72,32 @@ async function createSecret(req: Request, res: Response) {
 
     } catch (error) {
         return res.status(500).send({
-            "message":"Something went wrong",
-            "error":error
+            "message": "Something went wrong",
+            "error": error
         })
     }
 
 }
 
+async function fetchProjects(req: Request, res: Response) {
+    try {
+        const { decrypted } = req.body
+        const userProjects = await ProjectModel.find({
+            owner: decrypted.email
+        })
+        return res.status(200).send({
+            "message":"Projects fetched",
+            "data": userProjects
+        })
+    } catch (error) {
+        return res.status(500).send({
+            "message": "Something went wrong"
+        })
+    }
+}
+
 export {
     createProject,
-    createSecret
+    createSecret,
+    fetchProjects
 }

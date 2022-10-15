@@ -1,8 +1,9 @@
 import { register, login } from "./AuthService"
-import { createProject } from "./ProjectService"
+import { createProject, fetchProjects } from "./ProjectService"
 
 export {
     register,
     login,
-    createProject
+    createProject,
+    fetchProjects
 }
