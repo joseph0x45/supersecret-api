@@ -26,14 +26,10 @@ function decryptAndSign(hashedSecret: string, payload:Object) {
     }
 }
 
-async function tokenizeSecrets(secrets: string) {
-    return "duh"
-}
 
 
 export {
     generateSecret,
-    tokenizeSecrets,
     decryptAndSign,
     decryptSecret
 }

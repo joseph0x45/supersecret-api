@@ -68,9 +68,7 @@ async function createSecret(req: Request, res: Response) {
                 key,
                 value
             }
-
         }
-        
 
     } catch (error) {
         return res.status(500).send({
@@ -82,5 +80,6 @@ async function createSecret(req: Request, res: Response) {
 }
 
 export {
-    createProject
+    createProject,
+    createSecret
 }

@@ -1,6 +1,6 @@
 import UserModel from "../models/User"
 import { hashPassword, verifyPassword, userExists, generateAuthToken } from "../utils"
-import { generateSecret, tokenizeSecrets } from "../services/EncryptionService"
+import { generateSecret } from "../services/EncryptionService"
 import { Request, Response } from "express"
 
 

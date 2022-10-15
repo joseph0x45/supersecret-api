@@ -4,7 +4,7 @@ import * as dotenv from "dotenv"
 dotenv.config()
 import { connecToDB } from "./config"
 import bodyParser from "body-parser"
-import { register, login, tokenizeSecrets, createProject } from "./services"
+import { register, login, createProject } from "./services"
 import { checkAuthState } from "./utils"
 
 const PORT = process.env.PORT || 3000
