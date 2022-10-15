@@ -6,8 +6,28 @@ import { Request, Response } from "express"
 
 
 
-function login(req: Request, res: Response){
+async function login(req: Request, res: Response){
+    const { email, password } = req.body
     
+    if(!await (userExists(email))){
+        return res.status(404).send({
+            "message":"User not found"
+        })
+    }
+    const userDocument = await UserModel.findOne({
+        email
+    })
+    if(!verifyPassword(password, userDocument?.password as string)){
+        return res.status(400).send({
+            "message":"Wrong password"
+        })
+    }
+    const authToken = generateAuthToken({email})
+    return res.status(200).send({
+        "message":"Login successfull",
+        "authToken":authToken
+    })
+
 }
 
 async function register(req: Request, res: Response){

@@ -7,7 +7,8 @@ async function generateSecret() {
     return secret
 }
 
-async function tokenizeSecrets() {
+
+async function tokenizeSecrets(secrets: string) {
     return "duh"
 }
 

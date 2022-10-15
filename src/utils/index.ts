@@ -20,14 +20,14 @@ async function hashPassword(plainText: string)  {
 }
 
 async function verifyPassword(plainText: string, hash: string){
-    
-    
-    return ""
+    const match = await bcrypt.compare(plainText, hash)
+    return match
 }
 
 async function userExists(userEmail: string) {
     let user = await UserModel.findOne({email: userEmail})
     return (!user? false: true)
+
 }
 
 export {

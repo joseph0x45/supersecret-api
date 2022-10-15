@@ -20,6 +20,8 @@ app.get('/', (_req: Request, res:Response)=>{
 
 app.post("/auth/register", register)
 
+app.post("/auth/login", login)
+
 app.listen(PORT, ()=>{
     connecToDB()
     console.log("App listening on port 3000");
