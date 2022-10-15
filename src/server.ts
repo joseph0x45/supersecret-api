@@ -24,7 +24,7 @@ app.post("/auth/login", login)
 
 app.post("/project/create", checkAuthState, createProject)
 
-app.post("/projects/fetch", checkAuthState, fetchProjects)
+app.post("/project/fetch", checkAuthState, fetchProjects)
 
 app.listen(PORT, ()=>{
     connecToDB()
