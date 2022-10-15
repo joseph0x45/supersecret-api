@@ -2,6 +2,7 @@ import * as jwt from "jsonwebtoken"
 import * as bcrypt from "bcrypt"
 import UserModel from "../models/User"
 import { Request, Response, NextFunction } from "express"
+import ProjectModel from "../models/Project"
 
 interface authPayload{
     email: string
@@ -14,6 +15,8 @@ function generateAuthToken(payload: authPayload){
         expiresIn: "7d"
     })
 }
+
+
 
 function checkAuthState(req: Request, res: Response, next: NextFunction){
     const headers = req.headers.authorization
@@ -52,10 +55,17 @@ async function userExists(userEmail: string) {
 
 }
 
+async function projectExists(name: string) {
+    let project = await ProjectModel.findOne({name: name})
+    return (!project? false: true)
+
+}
+
 export {
     hashPassword,
     verifyPassword,
     userExists,
     generateAuthToken,
-    checkAuthState
+    checkAuthState,
+    projectExists
 }
