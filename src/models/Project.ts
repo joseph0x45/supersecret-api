@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
 
 const projectSchema = new mongoose.Schema({
-    owner: String
+    owner: String,
+    collaborators: [String],
+    secrets: {},
+    name: Object
+
 })
 
-const projectModel = mongoose.model("Project", projectSchema)
+const ProjectModel = mongoose.model("Project", projectSchema)
 
-export default projectModel
+export default ProjectModel

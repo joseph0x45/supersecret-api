@@ -4,8 +4,8 @@ import * as dotenv from "dotenv"
 dotenv.config()
 import { connecToDB } from "./config"
 import bodyParser from "body-parser"
-import { register, login, tokenizeSecrets } from "./services"
-
+import { register, login, tokenizeSecrets, createProject } from "./services"
+import { checkAuthState } from "./utils"
 
 const PORT = process.env.PORT || 3000
 const app = express()
@@ -21,6 +21,8 @@ app.get('/', (_req: Request, res:Response)=>{
 app.post("/auth/register", register)
 
 app.post("/auth/login", login)
+
+app.post("/project/create", checkAuthState, createProject)
 
 app.listen(PORT, ()=>{
     connecToDB()

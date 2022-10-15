@@ -1,6 +1,7 @@
 import * as jwt from "jsonwebtoken"
 import * as bcrypt from "bcrypt"
 import UserModel from "../models/User"
+import { Request, Response, NextFunction } from "express"
 
 interface authPayload{
     email: string
@@ -13,6 +14,27 @@ function generateAuthToken(payload: authPayload){
         expiresIn: "7d"
     })
 }
+
+function checkAuthState(req: Request, res: Response, next: NextFunction){
+    const headers = req.headers.authorization
+    if(!headers){
+        return res.status(401).send({
+            "message":"User not authenticated"
+        })
+    }
+    const token = headers.split(" ")[1]
+    try {
+        const decrypted = jwt.verify(token, salt)
+        req.body.decrypted = decrypted
+        next()
+    } catch (error) {
+        return res.status(401).send({
+            "message":"Invalid token"
+        })
+    }
+    
+}
+
 
 async function hashPassword(plainText: string)  {
     const hashed = bcrypt.hash(plainText, 10)
@@ -34,5 +56,6 @@ export {
     hashPassword,
     verifyPassword,
     userExists,
-    generateAuthToken
+    generateAuthToken,
+    checkAuthState
 }
