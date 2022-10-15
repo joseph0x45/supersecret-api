@@ -35,34 +35,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateAuthToken = exports.userExists = exports.verifyPassword = exports.hashPassword = void 0;
-const jwt = __importStar(require("jsonwebtoken"));
+exports.tokenizeSecrets = exports.generateSecret = void 0;
+const crypto_random_string_1 = __importDefault(require("crypto-random-string"));
 const bcrypt = __importStar(require("bcrypt"));
-const User_1 = __importDefault(require("../models/User"));
-const salt = "s4ltp4p1";
-function generateAuthToken(payload) {
-    return jwt.sign(payload, salt, {
-        expiresIn: "7d"
-    });
-}
-exports.generateAuthToken = generateAuthToken;
-function hashPassword(plainText) {
+function generateSecret() {
     return __awaiter(this, void 0, void 0, function* () {
-        const hashed = bcrypt.hash(plainText, 10);
-        return hashed;
+        let secret = (0, crypto_random_string_1.default)({ length: 10, type: 'alphanumeric' });
+        secret = yield bcrypt.hash(secret, 10);
+        return secret;
     });
 }
-exports.hashPassword = hashPassword;
-function verifyPassword(plainText, hash) {
+exports.generateSecret = generateSecret;
+function tokenizeSecrets() {
     return __awaiter(this, void 0, void 0, function* () {
-        return "";
+        return "duh";
     });
 }
-exports.verifyPassword = verifyPassword;
-function userExists(userEmail) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let user = yield User_1.default.findOne({ email: userEmail });
-        return (!user ? false : true);
-    });
-}
-exports.userExists = userExists;
+exports.tokenizeSecrets = tokenizeSecrets;

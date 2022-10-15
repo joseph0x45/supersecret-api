@@ -12,20 +12,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.login = exports.register = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const utils_1 = require("../utils");
-function login(payload) {
+const EncryptionService_1 = require("../services/EncryptionService");
+function login(req, res) {
 }
-function register(payload) {
+exports.login = login;
+function register(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { email, password, secret } = payload;
-        let _hashedPassword = yield (0, utils_1.hashPassword)(password);
-        const newUser = new User_1.default({ email, password: utils_1.hashPassword, secret });
+        const { email, password } = req.body;
+        //NOTE - Verify if email us already in use
+        if (yield (0, utils_1.userExists)(email)) {
+            return res.status(409).send({
+                "message": "This email is already in use"
+            });
+        }
+        //NOTE - Hash user password
+        const hashedPassword = yield (0, utils_1.hashPassword)(password);
+        //NOTE - Generate random secret for user
+        const secret = yield (0, EncryptionService_1.generateSecret)();
+        const newUser = new User_1.default({ email, password: hashedPassword, secret });
         newUser.save((err, result) => {
             if (err) {
-                return [false, err.message];
+                return res.status(500).send({
+                    "message": "Something went wrong",
+                    "error": err.message
+                });
             }
-            return [true, result];
+            const authToken = (0, utils_1.generateAuthToken)({ email });
+            console.log(authToken);
+            return res.status(200).send({
+                "message": "User registered",
+                "token": authToken
+            });
         });
     });
 }
+exports.register = register;

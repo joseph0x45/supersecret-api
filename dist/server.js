@@ -30,7 +30,9 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
+const config_1 = require("./config");
 const body_parser_1 = __importDefault(require("body-parser"));
+const services_1 = require("./services");
 const PORT = process.env.PORT || 3000;
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -40,6 +42,8 @@ app.get('/', (_req, res) => {
         "ping": "pong"
     });
 });
+app.post("/auth/register", services_1.register);
 app.listen(PORT, () => {
+    (0, config_1.connecToDB)();
     console.log("App listening on port 3000");
 });
