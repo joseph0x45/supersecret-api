@@ -6,19 +6,13 @@ const cryptr = new Cryptr("s3cr3ts4lt")
 
 async function generateSecret() {
     let secret = cryptoRandomString({ length: 10, type: 'alphanumeric' })
-    console.log(cryptr.encrypt(secret));
     return cryptr.encrypt(secret)
 }
 
 function decryptSecret(secretHash: string, jwtHash: string) {
     const decrypted = [cryptr.decrypt(secretHash), cryptr.decrypt(jwtHash)]
     let secretsObject
-    try {
-        secretsObject = jwt.decode(decrypted[1])
-        console.log(secretsObject);
-    } catch (error) {
-        console.log(error);
-    }
+    secretsObject = jwt.decode(decrypted[1])
     return secretsObject
 }
 
@@ -29,17 +23,10 @@ function decryptAndSign(hashedSecret: string, payload: Object) {
 }
 
 function updateSecretsToken(newPayload: Object, userSecretHash: string) {
-    try {
-        console.log(arguments);
-        const decryptedSecret = cryptr.decrypt(userSecretHash)
-        console.log(decryptedSecret);
-        const newSecretsToken = jwt.sign(newPayload, decryptedSecret)
-        console.log(newSecretsToken);
-        return newSecretsToken
-    } catch (error) {
-        console.log(error);
+    const decryptedSecret = cryptr.decrypt(userSecretHash)
+    const newSecretsToken = jwt.sign(newPayload, decryptedSecret)
+    return cryptr.encrypt(newSecretsToken)
 
-    }
 
 }
 

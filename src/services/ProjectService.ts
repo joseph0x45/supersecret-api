@@ -18,7 +18,6 @@ async function createProject(req: Request, res: Response) {
             email: decrypted.email
         })
         const userSecret = userAccount!.secret
-        console.log(userSecret);
         const secrets = decryptAndSign(userSecret as string, {
             secrets: []
         })
@@ -78,6 +77,8 @@ async function createSecret(req: Request, res: Response) {
         })
 
     } catch (error) {
+        console.log(error);
+        
         return res.status(500).send({
             "message": "Something went wrong",
             "error": error
