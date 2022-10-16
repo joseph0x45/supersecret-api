@@ -10,26 +10,42 @@ async function generateSecret() {
     return cryptr.encrypt(secret)
 }
 
-function decryptSecret(hash: string) {
-    console.log(cryptr.decrypt(hash));
-    return cryptr.decrypt(hash)
-}
-
-function decryptAndSign(hashedSecret: string, payload:Object) {
+function decryptSecret(secretHash: string, jwtHash: string) {
+    const decrypted = [cryptr.decrypt(secretHash), cryptr.decrypt(jwtHash)]
+    let secretsObject
     try {
-        const secret = cryptr.decrypt(hashedSecret)
-        const signedPayload = jwt.sign(payload, secret)
-        return cryptr.encrypt(signedPayload)
+        secretsObject = jwt.decode(decrypted[1])
+        console.log(secretsObject);
     } catch (error) {
         console.log(error);
-        return false
     }
+    return secretsObject
 }
 
+function decryptAndSign(hashedSecret: string, payload: Object) {
+    const secret = cryptr.decrypt(hashedSecret)
+    const signedPayload = jwt.sign(payload, secret)
+    return cryptr.encrypt(signedPayload)
+}
 
+function updateSecretsToken(newPayload: Object, userSecretHash: string) {
+    try {
+        console.log(arguments);
+        const decryptedSecret = cryptr.decrypt(userSecretHash)
+        console.log(decryptedSecret);
+        const newSecretsToken = jwt.sign(newPayload, decryptedSecret)
+        console.log(newSecretsToken);
+        return newSecretsToken
+    } catch (error) {
+        console.log(error);
+
+    }
+
+}
 
 export {
     generateSecret,
     decryptAndSign,
-    decryptSecret
+    decryptSecret,
+    updateSecretsToken
 }

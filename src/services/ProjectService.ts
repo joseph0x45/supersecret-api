@@ -1,8 +1,9 @@
 import ProjectModel from "../models/Project";
 import UserModel from "../models/User";
 import { Request, Response } from "express"
-import { decryptAndSign } from "./EncryptionService"
+import { decryptAndSign, decryptSecret, updateSecretsToken } from "./EncryptionService"
 import { projectExists } from "../utils"
+import  { JwtPayload } from "jsonwebtoken"
 
 
 async function createProject(req: Request, res: Response) {
@@ -50,25 +51,31 @@ async function createProject(req: Request, res: Response) {
 async function createSecret(req: Request, res: Response) {
     try {
         const { key, value, project } = req.body
-        //NOTE - Find targetted project with project id
         const targettedProject = await ProjectModel.findById(project)
-        //NOTE - Get secrets jwt token, can be "" if user doesn't have any secrets yet
         const secretsToken = targettedProject!.secrets
-        console.log(secretsToken);
-        //NOTE - Get project owner's encrytion key
         const owner = targettedProject!.owner
         const userAccount = await UserModel.findOne({
             email: owner
         })
         const userSecret = userAccount!.secret
-        console.log(userSecret);
-        if (secretsToken == "") {
-            console.log("User's first secret");
-            const newSecret = {
-                key,
-                value
+        const decrypted: JwtPayload = decryptSecret(userSecret as string, secretsToken as string) as JwtPayload
+        decrypted.secrets.push({ key, value })
+        const newSecretsToken = updateSecretsToken(decrypted, userSecret as string)  
+        ProjectModel.findByIdAndUpdate(project, {
+            $set:{
+                secrets: newSecretsToken
             }
-        }
+        }, (err, result)=>{
+            if(err){
+                return res.status(500).send({
+                    "message":"Something went wrong"
+                })
+            }
+        })
+        return res.status(200).send({
+            "message":"New secret added",
+            "data":newSecretsToken,
+        })
 
     } catch (error) {
         return res.status(500).send({
@@ -95,6 +102,7 @@ async function fetchProjects(req: Request, res: Response) {
         })
     }
 }
+
 
 export {
     createProject,
