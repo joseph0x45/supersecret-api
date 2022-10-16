@@ -58,8 +58,16 @@ async function register(req: Request, res: Response){
     })
 }
 
+async function getUsername(req: Request, res: Response) {
+    const { decrypted } = req.body
+    return res.status(200).send({
+        "message":"Username fetched",
+        "data":decrypted
+    })
+}
 
 export {
     register,
-    login
+    login,
+    getUsername
 }

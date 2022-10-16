@@ -4,7 +4,7 @@ import * as dotenv from "dotenv"
 dotenv.config()
 import { connecToDB } from "./config"
 import bodyParser from "body-parser"
-import { register, login, createProject, fetchProjects, createSecret, fetchSecrets } from "./services"
+import { register, login, createProject, fetchProjects, createSecret, fetchSecrets, getUsername } from "./services"
 import { checkAuthState } from "./utils"
 
 const PORT = process.env.PORT || 3000
@@ -29,6 +29,8 @@ app.get("/project/fetch", checkAuthState, fetchProjects)
 app.post("/project/create/secret", checkAuthState, createSecret)
 
 app.post("/project/fetch/secrets", checkAuthState, fetchSecrets)
+
+app.get("/auth/username", checkAuthState, getUsername)
 
 app.listen(PORT, ()=>{
     connecToDB()
