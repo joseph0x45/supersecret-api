@@ -8,7 +8,6 @@ import { Request, Response } from "express"
 
 async function login(req: Request, res: Response){
     const { email, password } = req.body
-    
     if(!await (userExists(email))){
         return res.status(404).send({
             "message":"User not found"
@@ -17,7 +16,7 @@ async function login(req: Request, res: Response){
     const userDocument = await UserModel.findOne({
         email
     })
-    if(!verifyPassword(password, userDocument?.password as string)){
+    if(! await verifyPassword(password, userDocument?.password as string)){
         return res.status(400).send({
             "message":"Wrong password"
         })
