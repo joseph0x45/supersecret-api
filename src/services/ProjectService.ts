@@ -104,9 +104,20 @@ async function fetchProjects(req: Request, res: Response) {
     }
 }
 
+async function fetchSecrets(req: Request, res: Response){
+    const { project } = req.body
+    const targettedProject = await ProjectModel.findById(project)
+    const secretsHash = targettedProject!.secrets
+    return res.status(200).send({
+        "message":"Secrets fetched",
+        "data": secretsHash
+    })
+}
+
 
 export {
     createProject,
     createSecret,
-    fetchProjects
+    fetchProjects,
+    fetchSecrets
 }
