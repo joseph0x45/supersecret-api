@@ -1,7 +1,7 @@
 import ProjectModel from "../models/Project";
 import UserModel from "../models/User";
 import { Request, Response } from "express"
-import { decryptAndSign, decryptSecret, updateSecretsToken } from "./EncryptionService"
+import { decryptAndSign, decryptSecret, updateSecretsToken, decryptAndFetch } from "./EncryptionService"
 import { projectExists } from "../utils"
 import  { JwtPayload } from "jsonwebtoken"
 
@@ -108,9 +108,10 @@ async function fetchSecrets(req: Request, res: Response){
     const { project } = req.body
     const targettedProject = await ProjectModel.findById(project)
     const secretsHash = targettedProject!.secrets
+    const decryptedSecrets = decryptAndFetch(secretsHash as string)
     return res.status(200).send({
         "message":"Secrets fetched",
-        "data": secretsHash
+        "data": decryptedSecrets
     })
 }
 

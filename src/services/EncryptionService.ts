@@ -26,13 +26,18 @@ function updateSecretsToken(newPayload: Object, userSecretHash: string) {
     const decryptedSecret = cryptr.decrypt(userSecretHash)
     const newSecretsToken = jwt.sign(newPayload, decryptedSecret)
     return cryptr.encrypt(newSecretsToken)
+}
 
-
+function decryptAndFetch( jwtHash: string ){
+    const decryptedHash = cryptr.decrypt(jwtHash)
+    const secretsObject = jwt.decode(decryptedHash)
+    return secretsObject
 }
 
 export {
     generateSecret,
     decryptAndSign,
     decryptSecret,
-    updateSecretsToken
+    updateSecretsToken,
+    decryptAndFetch
 }
