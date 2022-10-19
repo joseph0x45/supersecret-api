@@ -8,6 +8,12 @@ function connecToDB() {
     )
 }
 
+const SuperSecretKeys = {
+    SSK:"sup3rs3cr3t",
+    SSEK:"sup3rs3cr3t4pp"
+}
+
 export {
-    connecToDB
+    connecToDB,
+    SuperSecretKeys
 }

@@ -1,44 +1,35 @@
 import ProjectModel from "../models/Project";
-import UserModel from "../models/User";
 import { Request, Response } from "express"
-import { decryptAndSign, decryptSecret, updateSecretsToken, decryptAndFetch } from "./EncryptionService"
+import { initializeProject, fetchSecret, updateSecretsToken } from "./EncryptionService"
 import { projectExists } from "../utils"
-import  { JwtPayload } from "jsonwebtoken"
 
 
 async function createProject(req: Request, res: Response) {
     try {
-        const { name, decrypted } = req.body
-        if (await projectExists(name)) {
+        const { name, decrypted, USK } = req.body
+        if (await projectExists(name, decrypted.email)) {
             return res.status(409).send({
                 "message": "A project with the same name already exists"
             })
         }
-        const userAccount = await UserModel.findOne({
-            email: decrypted.email
-        })
-        const userSecret = userAccount!.secret
-        const secrets = decryptAndSign(userSecret as string, {
-            secrets: []
-        })
         const newProject = new ProjectModel({
             owner: decrypted.email,
+            name: name,
             collaborators: [],
-            secrets,
-            name
+            secrets: initializeProject(USK)
         })
-        newProject.save((err, result) => {
-            if (err) {
+        newProject.save((err, result)=>{
+            if(err){
                 return res.status(500).send({
-                    "message": "Something went wrong",
-                    "error": err
+                    "message":"Something went wrong",
+                    "data": err.message
                 })
             }
-            return res.status(201).send({
-                "message": "Project created",
+            return res.status(200).send({
                 "data": result
             })
         })
+        
     } catch (error) {
         return res.status(500).send({
             "message": "Something went wrong",
@@ -49,31 +40,24 @@ async function createProject(req: Request, res: Response) {
 
 async function createSecret(req: Request, res: Response) {
     try {
-        const { key, value, project } = req.body
+        const { key, value, project, USK } = req.body
         const targettedProject = await ProjectModel.findById(project)
         const secretsToken = targettedProject!.secrets
-        const owner = targettedProject!.owner
-        const userAccount = await UserModel.findOne({
-            email: owner
-        })
-        const userSecret = userAccount!.secret
-        const decrypted: JwtPayload = decryptSecret(userSecret as string, secretsToken as string) as JwtPayload
-        decrypted.secrets.push({ key, value })
-        const newSecretsToken = updateSecretsToken(decrypted, userSecret as string)  
-        ProjectModel.findByIdAndUpdate(project, {
-            $set:{
-                secrets: newSecretsToken
+        const updatedSecretsToken = updateSecretsToken(USK, secretsToken as string, {key, value})
+        targettedProject?.updateOne({
+            "$set":{
+                secrets:updatedSecretsToken
             }
-        }, (err, result)=>{
+        }, {}, (err, result)=>{
             if(err){
                 return res.status(500).send({
-                    "message":"Something went wrong"
+                    "message":`Something went wrong ${err.message} `
                 })
             }
         })
         return res.status(200).send({
             "message":"New secret added",
-            "data":newSecretsToken,
+            "data":updatedSecretsToken,
         })
 
     } catch (error) {
@@ -105,13 +89,13 @@ async function fetchProjects(req: Request, res: Response) {
 }
 
 async function fetchSecrets(req: Request, res: Response){
-    const { project } = req.body
+    const { project, USK } = req.body
     const targettedProject = await ProjectModel.findById(project)
-    const secretsHash = targettedProject!.secrets
-    const decryptedSecrets = decryptAndFetch(secretsHash as string)
+    const secretsToken = targettedProject!.secrets as string
+    const decryptedSecretsToken = fetchSecret(USK, secretsToken)
     return res.status(200).send({
         "message":"Secrets fetched",
-        "data": decryptedSecrets
+        "data": decryptedSecretsToken
     })
 }
 

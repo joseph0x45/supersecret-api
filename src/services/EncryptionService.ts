@@ -1,43 +1,52 @@
-import cryptoRandomString from "crypto-random-string";
 import Cryptr from "cryptr"
-import * as jwt from "jsonwebtoken"
+import { SuperSecretKeys } from "../config"
 
-const cryptr = new Cryptr("s3cr3ts4lt")
+const cryptr = new Cryptr(SuperSecretKeys.SSEK)
 
-async function generateSecret() {
-    let secret = cryptoRandomString({ length: 10, type: 'alphanumeric' })
-    return cryptr.encrypt(secret)
+function createUSK(userPlainPassword: string) {
+    const USK = `${userPlainPassword}${SuperSecretKeys.SSK}`
+    return cryptr.encrypt(USK)
 }
 
-function decryptSecret(secretHash: string, jwtHash: string) {
-    const decrypted = [cryptr.decrypt(secretHash), cryptr.decrypt(jwtHash)]
-    let secretsObject
-    secretsObject = jwt.decode(decrypted[1])
-    return secretsObject
+function initializeProject(encryptedUSK: string) {
+    try {
+        const decryptr = cryptr.decrypt(encryptedUSK)
+        return (new Cryptr(decryptr).encrypt(JSON.stringify({secrets:[]})))
+    } catch (error) {
+        console.log(error)
+        return ""
+    }
 }
 
-function decryptAndSign(hashedSecret: string, payload: Object) {
-    const secret = cryptr.decrypt(hashedSecret)
-    const signedPayload = jwt.sign(payload, secret)
-    return cryptr.encrypt(signedPayload)
+function fetchSecret(USK: string, secretsToken: string) {
+    try {
+        const decryptedUSK = cryptr.decrypt(USK)
+        const newCrypt = new Cryptr(decryptedUSK)
+        const secretsObject = newCrypt.decrypt(secretsToken)
+        return cryptr.encrypt(secretsObject)
+    } catch (error) {
+        throw error
+    }
 }
 
-function updateSecretsToken(newPayload: Object, userSecretHash: string) {
-    const decryptedSecret = cryptr.decrypt(userSecretHash)
-    const newSecretsToken = jwt.sign(newPayload, decryptedSecret)
-    return cryptr.encrypt(newSecretsToken)
+
+
+function updateSecretsToken(USK: string, secrets: string, newSecret: {key: string, value: string}) {
+    const decrypted = cryptr.decrypt(USK)
+    const newCrypt = new Cryptr(decrypted)
+    let decryptedSecrets = newCrypt.decrypt(secrets)
+    let decryptedSecretsObject = JSON.parse(decryptedSecrets) as { secrets:{key: string, value: string}[] }
+    decryptedSecretsObject.secrets.push(newSecret)
+    return newCrypt.encrypt(JSON.stringify(decryptedSecretsObject))
+
 }
 
-function decryptAndFetch( jwtHash: string ){
-    const decryptedHash = cryptr.decrypt(jwtHash)
-    const secretsObject = jwt.decode(decryptedHash)
-    return secretsObject
-}
+
 
 export {
-    generateSecret,
-    decryptAndSign,
-    decryptSecret,
+    createUSK,
+    fetchSecret,
     updateSecretsToken,
-    decryptAndFetch
+    initializeProject,
+    
 }

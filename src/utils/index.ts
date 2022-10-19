@@ -39,6 +39,7 @@ function checkAuthState(req: Request, res: Response, next: NextFunction){
 }
 
 
+
 async function hashPassword(plainText: string)  {
     const hashed = bcrypt.hash(plainText, 10)
     return hashed
@@ -55,8 +56,8 @@ async function userExists(userEmail: string) {
 
 }
 
-async function projectExists(name: string) {
-    let project = await ProjectModel.findOne({name: name})
+async function projectExists(name: string, owner: string) {
+    let project = await ProjectModel.findOne({name: name, owner: owner})
     return (!project? false: true)
 
 }

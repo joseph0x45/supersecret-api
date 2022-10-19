@@ -1,6 +1,6 @@
 import UserModel from "../models/User"
 import { hashPassword, verifyPassword, userExists, generateAuthToken } from "../utils"
-import { generateSecret } from "../services/EncryptionService"
+import { createUSK } from "../services/EncryptionService"
 import { Request, Response } from "express"
 
 
@@ -21,27 +21,26 @@ async function login(req: Request, res: Response){
             "message":"Wrong password"
         })
     }
+    const USK = createUSK(password)
     const authToken = generateAuthToken({email})
     return res.status(200).send({
-        "message":"Login successfull",
-        "authToken":authToken
+        "authToken":authToken,
+        "USK":USK
     })
 
 }
 
 async function register(req: Request, res: Response){
     const { email, password } = req.body
-    //NOTE - Verify if email us already in use
     if(await userExists(email)){
         return res.status(409).send({
             "message":"This email is already in use"
         })
     }
-    //NOTE - Hash user password
     const hashedPassword = await hashPassword(password)
-    //NOTE - Generate random secret for user
-    const secret = await generateSecret()
-    const newUser = new UserModel({email, password: hashedPassword, secret})
+    const USK = createUSK(password)
+    console.log(USK, password)
+    const newUser = new UserModel({email, password: hashedPassword})
      newUser.save((err, result)=>{
         if(err){
             return res.status(500).send({
@@ -50,10 +49,9 @@ async function register(req: Request, res: Response){
             })
         }
         const authToken = generateAuthToken({email})
-        console.log(authToken);
         return res.status(200).send({
-            "message":"User registered",
-            "token":authToken
+            "token":authToken,
+            "USK": USK
         })
     })
 }
