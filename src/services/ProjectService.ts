@@ -2,6 +2,7 @@ import ProjectModel from "../models/Project";
 import { Request, Response } from "express"
 import { initializeProject, fetchSecret, updateSecretsToken } from "./EncryptionService"
 import { projectExists } from "../utils"
+import mongoose from "mongoose";
 
 
 async function createProject(req: Request, res: Response) {
@@ -90,9 +91,19 @@ async function fetchProjects(req: Request, res: Response) {
 
 async function fetchSecrets(req: Request, res: Response){
     const { project, USK } = req.body
+    if(!mongoose.isObjectIdOrHexString(project)){
+        return res.status(400).send({
+            "message":"Invalid projectID"
+        })
+    }
     const targettedProject = await ProjectModel.findById(project)
     const secretsToken = targettedProject!.secrets as string
     const decryptedSecretsToken = fetchSecret(USK, secretsToken)
+    if(decryptedSecretsToken==false){
+        return res.status(403).send({
+            "message":"Invalid key"
+        })
+    }
     return res.status(200).send({
         "message":"Secrets fetched",
         "data": decryptedSecretsToken

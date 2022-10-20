@@ -25,7 +25,7 @@ function fetchSecret(USK: string, secretsToken: string) {
         const secretsObject = newCrypt.decrypt(secretsToken)
         return cryptr.encrypt(secretsObject)
     } catch (error) {
-        throw error
+        return false
     }
 }
 
