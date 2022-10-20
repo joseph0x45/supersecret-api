@@ -28,7 +28,7 @@ function checkAuthState(req: Request, res: Response, next: NextFunction){
     const token = headers.split(" ")[1]
     try {
         const decrypted = jwt.verify(token, salt)
-        req.body.decrypted = decrypted
+        req.body.decrypted = decrypted 
         next()
     } catch (error) {
         return res.status(401).send({

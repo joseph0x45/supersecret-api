@@ -43,6 +43,11 @@ async function createSecret(req: Request, res: Response) {
     try {
         const { key, value, project, USK } = req.body
         const targettedProject = await ProjectModel.findById(project)
+        if(targettedProject==null){
+            return res.status(404).send({
+                "message":"Project not found"
+            })
+        }
         const secretsToken = targettedProject!.secrets
         const updatedSecretsToken = updateSecretsToken(USK, secretsToken as string, {key, value})
         targettedProject?.updateOne({
