@@ -25,7 +25,8 @@ async function login(req: Request, res: Response){
     const authToken = generateAuthToken({email})
     return res.status(200).send({
         "authToken":authToken,
-        "USK":USK
+        "USK":USK,
+        "user":email
     })
 
 }
@@ -51,7 +52,8 @@ async function register(req: Request, res: Response){
         const authToken = generateAuthToken({email})
         return res.status(200).send({
             "token":authToken,
-            "USK": USK
+            "USK": USK,
+            "user": email
         })
     })
 }
