@@ -40,7 +40,6 @@ async function register(req: Request, res: Response){
     }
     const hashedPassword = await hashPassword(password)
     const USK = createUSK(password)
-    console.log(USK, password)
     const newUser = new UserModel({email, password: hashedPassword})
      newUser.save((err, result)=>{
         if(err){
