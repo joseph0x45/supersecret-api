@@ -24,7 +24,7 @@ async function login(req: Request, res: Response){
     const USK = createUSK(password)
     const authToken = generateAuthToken({email})
     return res.status(200).send({
-        "authToken":authToken,
+        "token":authToken,
         "USK":USK,
         "user":email
     })
