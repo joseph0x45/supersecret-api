@@ -9,8 +9,8 @@ function connecToDB() {
 }
 
 const SuperSecretKeys = {
-    SSK:"sup3rs3cr3t",
-    SSEK:"sup3rs3cr3t4pp"
+    SSK:process.env.SSK as string,
+    SSEK:process.env.SSEK as string
 }
 
 export {
